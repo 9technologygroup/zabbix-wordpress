@@ -1,13 +1,15 @@
 # zabbix-wordpress
 A zabbix template for monitoring wordpress websites
 
+![Zabbix configuration screenshot](https://i.ibb.co/CvF0Zjm/Screenshot-2024-10-27-145345.png)
+
 ## Features
 
 Monitor :
 1) Wordpres current version
 2) Available WP version
 3) If WP update is needed
-4) Users registerd on website
+4) Auto discover wp Users registerd on website
 5) if wp-config is on permission 600
 6) if salts are defined
 7) if file editing is disabled
@@ -37,6 +39,6 @@ Version 1.0
 5) Additional Information around security
 6) Additional Information around Users last login, Last password set
 7) Create trigger for when password is reset
-8) Start looking at monitoring wp performance
+8) Start looking at monitoring wp performance (uptime, response, slow files etc)
 9) Start integrating with litehouse
 
