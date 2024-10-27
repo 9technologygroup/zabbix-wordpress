@@ -1,0 +1,189 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
+  templates:
+    - uuid: 2803e441d27e403eb56adfb684f4ff73
+      template: 'WordPress Monitoring'
+      name: 'WordPress Monitoring'
+      groups:
+        - name: Templates/Applications
+      items:
+        - uuid: 201d23e41a944ac4ada74e33d4b54bbf
+          name: 'WordPress Config Security: File Edit Disallowed'
+          type: DEPENDENT
+          key: wordpress.config_security.disallow_file_edit
+          delay: '0'
+          value_type: TEXT
+          trends: '0'
+          description: 'Check if wp-config.php has the setting where files cannot be modified within /wp-admin'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.config_security.disallow_file_edit
+          master_item:
+            key: wordpress.json.data
+          triggers:
+            - uuid: ef009b116d6848ebbdb99b1123f0052d
+              expression: 'last(/WordPress Monitoring/wordpress.config_security.disallow_file_edit)="false"'
+              name: 'File Editing is NOT disabled in WordPress'
+              priority: WARNING
+              description: 'This triggers if file editing is not disabled in wp-config.php'
+        - uuid: 3e98737e219c4c228e967cde7d75c771
+          name: 'WordPress Config Security: File Permissions'
+          type: DEPENDENT
+          key: wordpress.config_security.file_permissions
+          delay: '0'
+          value_type: TEXT
+          trends: '0'
+          description: 'Check if the wp-config.php file is secure i.e on 600 file permissions'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.config_security.file_permissions
+          master_item:
+            key: wordpress.json.data
+          triggers:
+            - uuid: 7543adab17a64574889ccc7cb0838118
+              expression: 'last(/WordPress Monitoring/wordpress.config_security.file_permissions)="false"'
+              name: 'Insecure File Permissions on wp-config.php'
+              priority: AVERAGE
+              description: 'This triggers if file permissions for wp-config.php are insecure,. It needs to be 600'
+        - uuid: f0afa69ca050432a864dd929b3f30061
+          name: 'WordPress Config Security: Force SSL Admin'
+          type: DEPENDENT
+          key: wordpress.config_security.force_ssl_admin
+          delay: '0'
+          value_type: TEXT
+          trends: '0'
+          description: 'Check if https enforcement is on for wp-admin'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.config_security.force_ssl_admin
+          master_item:
+            key: wordpress.json.data
+          triggers:
+            - uuid: afdd16d134794122b7eb30109cd28ec6
+              expression: 'last(/WordPress Monitoring/wordpress.config_security.force_ssl_admin)="false"'
+              name: 'SSL for WordPress Admin Not Enforced'
+              priority: WARNING
+              description: 'This triggers if SSL is not enforced for the WordPress admin area'
+        - uuid: 19e10a7078e249b1b6a8ea86543e38fe
+          name: 'WordPress Config Security: Salts Defined'
+          type: DEPENDENT
+          key: wordpress.config_security.salts_defined
+          delay: '0'
+          value_type: TEXT
+          trends: '0'
+          description: 'Check if wp-config.php has the salts defined'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.config_security.salts_defined
+          master_item:
+            key: wordpress.json.data
+          triggers:
+            - uuid: 0b75886ca1b7460b8bf23c7690db419e
+              expression: 'last(/WordPress Monitoring/wordpress.config_security.salts_defined)="false"'
+              name: 'WordPress Security Salts Not Defined'
+              priority: WARNING
+              description: 'This triggers if security salts are missing in wp-config.php.'
+        - uuid: 221ef751365f483a8e359f648a9b5967
+          name: 'WordPress Current Version'
+          type: DEPENDENT
+          key: wordpress.current.version
+          delay: '0'
+          value_type: TEXT
+          trends: '0'
+          description: 'Obtain current Wordpress Version'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.current_version
+          master_item:
+            key: wordpress.json.data
+        - uuid: b71c62dbf2bc423eb1652689cf849252
+          name: 'WordPress JSON Data'
+          type: HTTP_AGENT
+          key: wordpress.json.data
+          delay: 1d
+          value_type: TEXT
+          trends: '0'
+          url: '{$PROTOCOL}://{$URL}/{$SCRIPT}'
+        - uuid: 886f9b86b5d841f7adaffb332fda29dd
+          name: 'WordPress Latest Version'
+          type: DEPENDENT
+          key: wordpress.latest.version
+          delay: '0'
+          value_type: TEXT
+          trends: '0'
+          description: 'Check if Wordpress needs an update'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.latest_version
+          master_item:
+            key: wordpress.json.data
+        - uuid: 886813e1508d46028adf6f2c8b5fbe17
+          name: 'WordPress Update Needed'
+          type: DEPENDENT
+          key: wordpress.update.needed
+          delay: '0'
+          value_type: TEXT
+          trends: '0'
+          description: 'Check if Wordpress needs an update'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.update_needed
+          master_item:
+            key: wordpress.json.data
+          triggers:
+            - uuid: 9edb09a25cb94a47bbd02f5c69fd1e31
+              expression: 'last(/WordPress Monitoring/wordpress.update.needed)="true"'
+              name: 'WordPress Update Needed'
+              priority: WARNING
+      discovery_rules:
+        - uuid: 6dcd48a872a44426accde05f9221a841
+          name: 'WordPress User Discovery'
+          type: DEPENDENT
+          key: wordpress.user.discovery
+          delay: '0'
+          item_prototypes:
+            - uuid: c7e3948abd9c49a1879a5279a7473ecc
+              name: 'Wordpress User Discovered : {#WPUSER}'
+              type: DEPENDENT
+              key: 'wordpress.user[{#WPUSER}]'
+              delay: '0'
+              value_type: TEXT
+              trends: '0'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.users[?(@.username=="{#WPUSER}")].role'
+              master_item:
+                key: wordpress.json.data
+          master_item:
+            key: wordpress.json.data
+          lld_macro_paths:
+            - lld_macro: '{#WPUSER}'
+              path: $.username
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.users[*]'
+      tags:
+        - tag: application
+          value: wordpress
+      macros:
+        - macro: '{$PROTOCOL}'
+          value: https
+          description: 'https default, can be http'
+        - macro: '{$SCRIPT}'
+          value: wp-checkv2.php
+          description: 'The script name'
+        - macro: '{$URL}'
+          value: '{HOST.HOST}'
+          description: 'The website domain of wordpress'
