@@ -16,9 +16,10 @@ Monitor :
 ## Instructions
 
 1) Place the wpcheckv2.php file in the root of your website directory
-2) edit wpcheckv2.php to enter in the zabbix ip, which will be the only ip to perform the check and invoke the php file for JSON response
-3) upload the xml template to zabbix (tested with version 7.0)
-4) Apply the template to a host.
+2) Make the permissions 600 , and ensure correct ownership of the php file
+3) edit wpcheckv2.php to enter in the zabbix ip, which will be the only ip to perform the check and invoke the php file for JSON response
+4) upload the xml template to zabbix (tested with version 7.0)
+5) Apply the template to a host.
 
 ### Notes
 
